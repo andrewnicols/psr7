@@ -71,6 +71,7 @@ class Stream implements StreamInterface
      */
     public function __destruct()
     {
+        error_log("Destroying Stream");
         $this->close();
     }
 
