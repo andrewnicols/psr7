@@ -60,6 +60,39 @@ class StreamTest extends TestCase
         self::assertFalse(is_resource($handle));
     }
 
+    public function outOfScopeProvider(): array
+    {
+        $dir = tempnam(sys_get_temp_dir(), 'test');
+        unlink($dir);
+        mkdir($dir);
+        return [
+            [$dir],
+            [$dir]
+        ];
+    }
+
+    /**
+     * @dataProvider outOfScopeProvider
+     */
+    public function testStreamIsDestroyedOutOfScope(string $dir): void
+    {
+        $tmpfile = $dir . DIRECTORY_SEPARATOR . 'test.txt';
+
+        // Ensure that the file is created.
+        file_put_contents($tmpfile, 'Some example content');
+        $this->assertTrue(file_exists($tmpfile));
+
+        // Create a Stream, but do not store a reference.
+        // This should go out of scope at the end of the test.
+        $handle = fopen($tmpfile, "r+");
+        new Stream($handle);
+
+        // Ensure that the file is deleted.
+        $this->assertTrue(file_exists($tmpfile));
+        unlink($tmpfile);
+        $this->assertFalse(file_exists($tmpfile));
+    }
+
     public function testConvertsToString(): void
     {
         $handle = fopen('php://temp', 'w+');

@@ -11,11 +11,15 @@ permissions:
 jobs:
   build:
     name: Test
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
     strategy:
       max-parallel: 10
       matrix:
+        os: ['ubuntu-22.04']
         php: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2']
+        include:
+          - os: windows-latest
+            php: 8.1
 
     steps:
       - name: Set up PHP
